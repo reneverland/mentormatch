@@ -1,0 +1,21 @@
+{
+  "name": "imba-mentor-match",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "2026-2027 校外导师匹配（学生端 /match，管理端 /match/admin）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "data": "python3 tools/build-mentors.py"
+  },
+  "dependencies": {
+    "vue": "^3.4.38",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "vite": "^5.4.8"
+  }
+}

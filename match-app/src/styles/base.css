@@ -1,0 +1,121 @@
+/* 配色与排版对齐 2026-2027校外导师-单文件.html，保持同一套紫金视觉。 */
+:root {
+  --purple: #4b1d6e;
+  --purple-deep: #241033;
+  --purple-mid: #6a348f;
+  --gold: #c4a35a;
+  --gold-soft: #f3e7c5;
+  --paper: #f4efe8;
+  --card: #fffcf8;
+  --ink: #1b1322;
+  --muted: #6f6577;
+  --line: #e7ddd0;
+  --good: #1f7a52;
+  --good-bg: #e4f3ec;
+  --bad: #9b2430;
+  --bad-bg: #fbe9ea;
+  --shadow: 0 16px 40px rgba(36, 16, 51, 0.1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(196, 163, 90, 0.08), transparent 28%),
+    radial-gradient(circle at 92% 80%, rgba(75, 29, 110, 0.06), transparent 32%),
+    var(--paper);
+  color: var(--ink);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.55;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 80px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="datetime-local"],
+.field select {
+  width: 100%;
+  border: 1px solid #ddd2c4;
+  background: #fff;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font: inherit;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(196, 163, 90, 0.16);
+}
+
+.btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 22px;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--purple), var(--purple-mid));
+  color: #fff;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(36, 16, 51, 0.18);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--purple);
+  border: 1px solid #ddd2c4;
+}
+
+.alert {
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.alert.error { background: var(--bad-bg); color: var(--bad); }
+.alert.ok { background: var(--good-bg); color: var(--good); }

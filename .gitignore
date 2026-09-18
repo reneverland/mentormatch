@@ -1,0 +1,19 @@
+# Dependencies and local builds
+node_modules/
+match-app/dist/
+/match/
+
+# Runtime data generated on first start — never commit secrets or student records
+server/match/config.json
+server/match/students.json
+server/match/picks.json
+server/match/uploads/
+server/match/*.tmp
+server/match/初始管理员密码.txt
+server/startup.log
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
