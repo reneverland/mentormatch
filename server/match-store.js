@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const storeDb = require("./match-db");
 
 const DATA_DIR = path.join(__dirname, "match");
 const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
@@ -77,16 +78,35 @@ function init() {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   fs.mkdirSync(IMAGE_DIR, { recursive: true });
   fs.mkdirSync(AVATAR_DIR, { recursive: true });
+  storeDb.open();
+  storeDb.migrateFromJson({
+    readJson,
+    config: CONFIG_FILE,
+    students: STUDENTS_FILE,
+    picks: PICKS_FILE,
+    mentors: MENTORS_FILE,
+    mentorAccounts: MENTOR_ACCOUNTS_FILE,
+    messages: MESSAGES_FILE,
+    jobs: JOBS_FILE,
+    jobsSettings: JOBS_SETTINGS_FILE,
+    jobApplies: JOB_APPLIES_FILE,
+    inbox: INBOX_FILE,
+    coordSettings: COORD_SETTINGS_FILE,
+    coordBookings: COORD_BOOKINGS_FILE,
+  });
   seedMentorAccounts();
   seedStudentPasswords();
   seedTodayJobs();
   seedCoord();
+  getStudents().forEach((student) => {
+    storeDb.syncStudentFiles(student, { resumePath, avatarFile });
+  });
 
-  if (fs.existsSync(CONFIG_FILE)) return null;
+  if (getConfig().secret) return null;
 
   const password = randomString(12);
   const salt = randomString(16);
-  writeJson(CONFIG_FILE, {
+  saveConfig({
     inviteCode: DEFAULT_INVITE_CODE,
     openFrom: "",
     openTo: "",
@@ -103,7 +123,7 @@ function init() {
 }
 
 function getConfig() {
-  return readJson(CONFIG_FILE, {
+  return storeDb.getKv("config", {
     inviteCode: DEFAULT_INVITE_CODE,
     openFrom: "",
     openTo: "",
@@ -114,27 +134,31 @@ function getConfig() {
 }
 
 function saveConfig(next) {
-  writeJson(CONFIG_FILE, next);
+  storeDb.setKv("config", next);
 }
 
 function getMentors() {
-  return readJson(MENTORS_FILE, []);
+  const rows = storeDb.getMentors();
+  return rows.length ? rows : readJson(MENTORS_FILE, []);
 }
 
 function getStudents() {
-  return readJson(STUDENTS_FILE, []);
+  return storeDb.getStudents();
 }
 
 function saveStudents(list) {
-  writeJson(STUDENTS_FILE, list);
+  storeDb.saveStudents(list);
+  (list || []).forEach((student) => {
+    storeDb.syncStudentFiles(student, { resumePath, avatarFile });
+  });
 }
 
 function getPicks() {
-  return readJson(PICKS_FILE, {});
+  return storeDb.getPicks();
 }
 
 function savePicks(map) {
-  writeJson(PICKS_FILE, map);
+  storeDb.savePicks(map);
 }
 
 function countsByMentor() {
@@ -311,11 +335,11 @@ function messageImagePath(filename) {
 /* ---------- 导师账号 ---------- */
 
 function getMentorAccounts() {
-  return readJson(MENTOR_ACCOUNTS_FILE, {});
+  return storeDb.getMentorAccounts();
 }
 
 function saveMentorAccounts(accounts) {
-  writeJson(MENTOR_ACCOUNTS_FILE, accounts);
+  storeDb.saveMentorAccounts(accounts);
 }
 
 // 名单里的导师都预开账号，默认密码统一，登录后自己改。
@@ -393,11 +417,11 @@ function readMentorToken(token) {
 /* ---------- 组内群发 ---------- */
 
 function getMessages() {
-  return readJson(MESSAGES_FILE, []);
+  return storeDb.getMessages();
 }
 
 function saveMessages(list) {
-  writeJson(MESSAGES_FILE, list);
+  storeDb.saveMessages(list);
 }
 
 function newMessageId() {
@@ -411,15 +435,15 @@ function defaultJobsSettings() {
 }
 
 function getJobs() {
-  return readJson(JOBS_FILE, []);
+  return storeDb.getJobs();
 }
 
 function saveJobs(list) {
-  writeJson(JOBS_FILE, list);
+  storeDb.saveJobs(list);
 }
 
 function getJobsSettings() {
-  const stored = readJson(JOBS_SETTINGS_FILE, null);
+  const stored = storeDb.getKv("jobs_settings", null);
   if (!stored) return defaultJobsSettings();
   const next = defaultJobsSettings();
   next.adTitle = String(stored.adTitle || "");
@@ -434,23 +458,23 @@ function getJobsSettings() {
 }
 
 function saveJobsSettings(next) {
-  writeJson(JOBS_SETTINGS_FILE, next);
+  storeDb.setKv("jobs_settings", next);
 }
 
 function getJobApplies() {
-  return readJson(JOB_APPLIES_FILE, []);
+  return storeDb.getJobApplies();
 }
 
 function saveJobApplies(list) {
-  writeJson(JOB_APPLIES_FILE, list);
+  storeDb.saveJobApplies(list);
 }
 
 function getInbox() {
-  return readJson(INBOX_FILE, []);
+  return storeDb.getInbox();
 }
 
 function saveInbox(list) {
-  writeJson(INBOX_FILE, list);
+  storeDb.saveInbox(list);
 }
 
 function newJobId() {
@@ -515,7 +539,7 @@ function defaultCoordSettings() {
 }
 
 function getCoordSettings() {
-  const stored = readJson(COORD_SETTINGS_FILE, null);
+  const stored = storeDb.getKv("coord_settings", null);
   if (!stored) return defaultCoordSettings();
   const next = defaultCoordSettings();
   next.enabled = stored.enabled !== false;
@@ -534,15 +558,15 @@ function getCoordSettings() {
 }
 
 function saveCoordSettings(next) {
-  writeJson(COORD_SETTINGS_FILE, next);
+  storeDb.setKv("coord_settings", next);
 }
 
 function getCoordBookings() {
-  return readJson(COORD_BOOKINGS_FILE, []);
+  return storeDb.getCoordBookings();
 }
 
 function saveCoordBookings(list) {
-  writeJson(COORD_BOOKINGS_FILE, list);
+  storeDb.saveCoordBookings(list);
 }
 
 function newBookingId() {
@@ -550,12 +574,11 @@ function newBookingId() {
 }
 
 function seedCoord() {
-  if (!fs.existsSync(COORD_SETTINGS_FILE)) saveCoordSettings(defaultCoordSettings());
-  if (!fs.existsSync(COORD_BOOKINGS_FILE)) saveCoordBookings([]);
+  if (!storeDb.hasKv("coord_settings")) saveCoordSettings(defaultCoordSettings());
 }
 
 function seedTodayJobs() {
-  if (!fs.existsSync(JOBS_SETTINGS_FILE)) {
+  if (!storeDb.hasKv("jobs_settings")) {
     saveJobsSettings(defaultJobsSettings());
   }
   const jobs = getJobs();

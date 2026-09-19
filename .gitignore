@@ -20,6 +20,9 @@ server/match/coord-bookings.json
 server/match/uploads/
 server/match/avatars/
 server/match/message-images/
+server/match/*.sqlite
+server/match/*.sqlite-*
+server/node_modules/
 
 # 本地素材与构建缓存
 __MACOSX/

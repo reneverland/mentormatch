@@ -20,6 +20,7 @@ const pwdNotice = ref("");
 const pwdBusy = ref(false);
 const avatarBusy = ref(false);
 const resumeBusy = ref(false);
+const resumeTick = ref(0);
 
 function on(href) {
   if (href === "/") return path === "/" || path === "/index.html";
@@ -36,7 +37,8 @@ const avatarSrc = computed(() => {
 
 const resumePreviewUrl = computed(() => {
   if (!me.value || !me.value.resume || !studentToken.value) return "";
-  return api.studentResumeUrl(studentToken.value);
+  return api.studentResumeUrl(studentToken.value) +
+    "&v=" + encodeURIComponent((me.value.resumeName || "") + "-" + resumeTick.value);
 });
 
 async function loadMe() {
@@ -130,6 +132,7 @@ async function onResumeChange(event) {
     const data = await api.uploadResume(studentToken.value, file.name, dataBase64);
     if (data.me) me.value = data.me;
     else await loadMe();
+    resumeTick.value += 1;
     pwdNotice.value = t("nav.resumeOk");
   } catch (err) {
     pwdError.value = te(err.message);
@@ -237,14 +240,14 @@ onMounted(loadMe);
       <p class="resume-status">
         {{ me && me.resume ? t("nav.resumeHave", { name: me.resumeName || "CV.pdf" }) : t("nav.resumeNone") }}
       </p>
+      <div v-if="resumePreviewUrl" class="resume-view">
+        <iframe
+          :src="resumePreviewUrl"
+          :title="t('nav.resumePreview')"
+          class="resume-frame"
+        ></iframe>
+      </div>
       <div class="resume-actions">
-        <a
-          v-if="resumePreviewUrl"
-          class="btn ghost"
-          :href="resumePreviewUrl"
-          target="_blank"
-          rel="noopener"
-        >{{ t("nav.resumePreview") }}</a>
         <label class="pick">
           <input type="file" accept="application/pdf,.pdf" :disabled="resumeBusy" hidden @change="onResumeChange" />
           <span class="btn ghost">{{ me && me.resume ? t("nav.resumeReplace") : t("nav.resumePick") }}</span>
@@ -440,6 +443,22 @@ onMounted(loadMe);
 }
 
 .sheet-title.sub { margin-top: 16px; }
+
+.resume-view {
+  margin: 0 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.resume-frame {
+  display: block;
+  width: 100%;
+  height: min(420px, 56vh);
+  border: 0;
+  background: #fff;
+}
 
 .resume-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pick { display: inline-block; cursor: pointer; }

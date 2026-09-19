@@ -1,0 +1,8 @@
+{
+  "name": "imba-student-portal-server",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "better-sqlite3": "^11.10.0"
+  }
+}
