@@ -1,0 +1,33 @@
+node_modules/
+match-app/node_modules/
+.DS_Store
+*.log
+*.tmp
+
+# 运行时数据与密钥，不进仓库
+server/match/初始管理员密码.txt
+server/match/config.json
+server/match/jobs-settings.json
+server/match/students.json
+server/match/picks.json
+server/match/inbox.json
+server/match/jobs.json
+server/match/job-applies.json
+server/match/messages.json
+server/match/mentor-accounts.json
+server/match/coord-settings.json
+server/match/coord-bookings.json
+server/match/uploads/
+server/match/avatars/
+server/match/message-images/
+
+# 本地素材与构建缓存
+__MACOSX/
+source/
+review/
+校外导师照片/
+简历/
+*.xlsx
+2026-2027*
+.env
+.env.*

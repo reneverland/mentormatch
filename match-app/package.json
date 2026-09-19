@@ -1,0 +1,26 @@
+{
+  "name": "imba-mentor-match",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "IMBA 学生服务平台（入口 /，匹配 /match，指引 /guide）",
+  "scripts": {
+    "dev": "vite",
+    "dev:guide": "vite --config vite.guide.config.js",
+    "dev:home": "vite --config vite.home.config.js",
+    "build": "vite build && vite build --config vite.guide.config.js && vite build --config vite.home.config.js",
+    "build:match": "vite build",
+    "build:guide": "vite build --config vite.guide.config.js",
+    "build:home": "vite build --config vite.home.config.js",
+    "preview": "vite preview",
+    "data": "python3 tools/build-mentors.py"
+  },
+  "dependencies": {
+    "vue": "^3.4.38",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "vite": "^5.4.8"
+  }
+}
